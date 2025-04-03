@@ -1,10 +1,28 @@
 from flask import Flask,jsonify,request
+from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
+
+users ={
+    "user1":"senha1",
+    "user2":"senha2"
+}
+
+auth = HTTPBasicAuth()
+
+@auth.verify_password
+def verify_password(username,password):
+    if username in users and users[username] == password:
+        return username
 
 @app.route('/')
 def home():
     return "Hello, flask"
+
+@app.route('/hello',methods=['GET'])
+@auth.login_required
+def hello():
+    return jsonify({"message":"Hello, World!"})
 
 items = []
 @app.route('/items', methods=['GET'])
